@@ -1,0 +1,79 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #F5F3EF;
+    margin: 0;
+    padding: 40px;
+}
+
+.bird-detail-container {
+    display: flex;
+    gap: 50px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* LEFT */
+.bird-left {
+    width: 40%;
+}
+
+.bird-image {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.bird-audio {
+    width: 100%;
+    margin-top: 15px;
+}
+
+/* RIGHT */
+.bird-right {
+    width: 60%;
+}
+
+.bird-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+/* Pills */
+.pill-row {
+    display: flex;
+    gap: 12px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+}
+
+.pill {
+    background-color: #DCE4D8; /* light grey-green */
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+}
+
+.pill.italic {
+    font-style: italic;
+}
+
+/* Description */
+.bird-description {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-top: 20px;
+}
+
+/* Map */
+.map-container {
+    margin-top: 30px;
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 300px;
+    border-radius: 14px;
+    border: none;
+}

@@ -1,0 +1,517 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Explore Birds | Druk Bird</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
+    <style>
+        /* =======================
+           GENERAL STYLES
+           ======================= */
+        body {
+            margin: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #F5F7FA;
+            color: #2c3e50;
+        }
+
+        /* =======================
+           NAVBAR
+           ======================= */
+        nav.top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #F5F7FA;
+            padding: 12px 30px;
+            border-bottom: 1px solid #E1E5EA;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        nav .left-icons img {
+            width: 32px;
+            margin-right: 18px;
+            cursor: pointer;
+        }
+
+        nav .right-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        nav .right-logo img {
+            width: 40px;
+            margin-right: 10px;
+        }
+
+        nav .right-logo span {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* =======================
+           PAGE LAYOUT
+           ======================= */
+        .explore-container {
+            display: flex;
+            padding: 30px;
+            gap: 30px;
+        }
+
+        /* =======================
+           FILTERS
+           ======================= */
+        .filters {
+            width: 25%;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .filters h3 { color: #2c3e50; margin-bottom: 15px; }
+        .filters label { display:block; margin-top:10px; font-weight:500; }
+        .filters select, .filters input { width: 100%; padding:5px 8px; margin-top:5px; margin-bottom:10px; border-radius:4px; border:1px solid #ccc;
+
+        }
+
+        /* =======================
+           FEATURED BIRDS
+           ======================= */
+        .birds-section {
+            width: 75%;
+            padding-right: 10px;
+        }
+
+        .birds-section h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 36px;   /* bigger size */
+            font-weight: 700;  /* bold */
+            font-family: 'Montserrat', sans-serif; /* optional new font */
+        }
+
+        .bird-card {
+            background-color: #F5F5DC; /* khaki */
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .bird-card img {
+            width: 160px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .bird-card h3 {
+            margin: 0 0 5px 0;
+        }
+
+        .sci-name {
+            font-style: italic;
+            color: #4B4B4B;
+            margin: 0 0 12px 0;
+            font-size: 15px;
+        }
+
+        .bird-card p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .bird-card button {
+            background-color: #9CAF88;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .bird-card button:hover {
+            background-color: #879e73;
+            color: white;
+        }
+
+        /* =======================
+           RESPONSIVE
+           ======================= */
+        @media (max-width: 900px) {
+            .explore-container {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .filters, .birds-section {
+                width: 100%;
+            }
+
+            .bird-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .bird-card img {
+                width: 90%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="top-nav">
+    <div class="left-icons">
+        <a href="{% url 'home' %}">
+            <img src="{% static 'icons/home.png' %}" alt="Home">
+        </a>
+        <a href="{% url 'admin_login' %}"><img src="{% static 'icons/admin.png' %}" alt="Admin"></a>
+        <a href="{% url 'explore' %}">
+            <img src="{% static 'icons/user.png' %}" alt="User">
+        </a>
+    </div>
+
+    <div class="right-logo">
+        <img src="{% static 'images/logo.png' %}" alt="Logo">
+        <span>Druk Bird</span>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="explore-container">
+
+    <!-- FILTERS -->
+    <div class="filters">
+    <h3>Filter Birds</h3>
+
+    <label>IUCN Category:</label>
+    <select id="iucnFilter">
+        <option value="">All</option>
+        <option value="Least Concern">Least Concern</option>
+        <option value="Near Threatened">Near Threatened</option>
+        <option value="Vulnerable">Vulnerable</option>
+    </select>
+
+    <label>District:</label>
+    <select id="districtFilter">
+        <option value="">All</option>
+        <option value="Thimphu">Thimphu</option>
+        <option value="Paro">Paro</option>
+        <option value="Sarpang">Sarpang</option>
+        <option value="Zhemgang">Zhemgang</option>
+        <option value="Chhukha">Chhukha</option>
+        <option value="Punakha">Punakha</option>
+        <option value="Mongar">Mongar</option>
+        <option value="Trashi Yangtse">Trashi Yangtse</option>
+        <option value="Trongsa">Trongsa</option>
+        <option value="Samdrup Jongkhar">Samdrup Jongkhar</option>
+        <option value="Dagana">Dagana</option>
+        <option value="Wangdue Phodrang">Wangdue Phodrang</option>
+        <option value="Tsirang">Tsirang</option>
+        <option value="Lhuentse">Lhuentse</option>
+        <option value="Bumthang">Bumthang</option>
+    </select>
+
+    <label>Breeding / Endemic:</label>
+    <select id="breedingFilter">
+        <option value="">All</option>
+        <option value="TRUE">TRUE</option>
+        <option value="FALSE">FALSE</option>
+    </select>
+
+    <label>Search:</label>
+    <input type="text" id="textSearch" placeholder="Enter keyword...">
+
+    <button id="applyFilter" style="margin-top:15px; padding:8px 15px; border:none; background-color:#9CAF88; color:#fff; cursor:pointer;">Apply</button>
+</div>
+
+
+    <!-- FEATURED BIRDS -->
+    <div class="birds-section">
+        <h2>Featured Birds</h2>
+
+        <!-- 1. Indian Peafowl -->
+        <div class="bird-card"
+             data-iucn="Least Concern"
+             data-district="Sarpang,Zhemgang,Chhukha,Punakha,Mongar,Trashi Yangtse,Trongsa,Samdrup Jongkhar,Dagana,Thimphu,Wangdue Phodrang,Tsirang,Lhuentse,Bumthang,Paro"
+             data-breeding="FALSE"
+             data-description="An unmistakable, large ground bird. The unmistakable iridescent blue male spreads out its ornamental upper tail feathers when courting females. Females have a shorter tail, an iridescent green neck, and browner plumage. Found in forest, forest edge, and agricultural land. Often seen on paths or alertly feeding in the undergrowth. Can be fairly confiding especially when found close to human habitation. Its loud screaming “may-yow” calls are heard incessantly during the rainy season.">
+
+            <img src="{% static 'images/indian_peafowl.jpg' %}" alt="Indian Peafowl">
+            <div>
+                <h3>Indian Peafowl</h3>
+                <p class="sci-name"><em>Pavo cristatus</em></p>
+                <p>An unmistakable, large ground bird. The iridescent blue male spreads its ornamental upper tail feathers when courting. Common in forest edges, agricultural land, and near human habitation.</p>
+                <a href="{% url 'bird_detail' 'indian-peafowl' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 2. Spotted Dove -->
+        <div class="bird-card"
+             data-iucn="Least Concern"
+             data-district="Sarpang,Zhemgang,Punakha,Mongar,Trashi Yangtse,Trongsa,Samdrup Jongkhar,Dagana,Thimphu,"
+             data-breeding="FALSE"
+             data-description="A common garden bird throughout much of Asia, found in open forests, fields, and parks; introduced to several regions around the world. Often tame and approachable. Brown overall with a rosy breast and a unique white-spotted black nape patch. Plumage shows slight regional variation: western birds have dark centers to wing feathers, lacking in eastern birds. Turtle-doves are larger, have black centers to wing feathers and stripes rather than spots on the neck. Coos loudly and often: “coo-a-roooo”.">
+             
+            <img src="{% static 'images/spotted_dove.jpg' %}" alt="Spotted Dove">
+            <div>
+                <h3>Spotted Dove</h3>
+                <p class="sci-name"><em>Spilopelia chinensis</em></p>
+                <p>A common garden bird with a rosy breast and a white-spotted black nape patch. Often tame and found in open forests, fields, and parks.</p>
+                <a href="{% url 'bird_detail' 'spotted-dove' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 3. Great Hornbill -->
+        <div class="bird-card"
+             data-iucn="Vulnerable"
+             data-district="Zhemgang,Mongar,Trongsa,Wangdue Phodrang,Samdrup Jongkhar"
+             data-breeding="FALSE"
+             data-description="A huge, distinctive hornbill with a large yellow bill and casque. Black face, wings, and breast contrast with white neck, belly, and tail. Sexes are similar, except that females have an entirely yellow casque, a pale iris, and bare pink skin around the eye. In flight, note the white tail with black band, and the black wings with a yellowish-white band and a white edge. The species inhabits dense evergreen forests. The call is usually a loud series of deep grunts.">
+             
+            <img src="{% static 'images/great_hornbill.jpg' %}" alt="Great Hornbill">
+            <div>
+                <h3>Great Hornbill</h3>
+                <p class="sci-name"><em>Buceros bicornis</em></p>
+                <p>A huge and distinctive hornbill with a yellow bill and casque. Inhabits dense evergreen forests and is known for its deep grunting calls.</p>
+                <a href="{% url 'bird_detail' 'great-hornbill' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 4. Bronzed Drongo -->
+        <div class="bird-card"
+             data-iucn="Least Concern"
+             data-district="Sarpang,Zhemgang,Mongar,Samdrup Jongkhar,Wangdue Phodrang"
+             data-breeding="FALSE"
+             data-description="A small and compact drongo that is glossy black overall, with a short, moderately forked tail. The shiny feathers on the head, breast, and back of the neck contrast with the plain black face and belly. It often occurs in pairs and small groups, as well as in mixed-species foraging flocks. It is found in forests, along forest edges, and in well-wooded gardens and plantations. The calls are usually a pleasant jumble of shrill sounds, whistles, buzzes, and metallic notes.">
+             
+            <img src="{% static 'images/bronzed_drongo.jpg' %}" alt="Bronzed Drongo">
+            <div>
+                <h3>Bronzed Drongo</h3>
+                <p class="sci-name"><em>Dicrurus aeneus</em></p>
+                <p>A glossy black drongo with a compact body and forked tail. Often found in forest edges and mixed-species foraging flocks.</p>
+                <a href="{% url 'bird_detail' 'bronzed-drongo' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 5. Red-vented Bulbul -->
+        <div class="bird-card"
+             data-iucn="Least Concern"
+             data-district="Zhemgang,Punakha,Mongar,Trongsa,Samdrup Jongkhar,Tsirang,Lhuentse"
+             data-breeding="FALSE"
+             data-description="A dark, sleek, medium-sized bird with a black crest and a white rump. The red color under the tail is often difficult to see. Eats fruit, flower buds, and insects. Conspicuous and sometimes gregarious, often seen high in trees or perched on wires in urban and rural areas; generally prefers scrubby edge habitat instead of dense forest. Calls include a variety of chirps and whistles. Native to South and Southeast Asia. Introduced to Kuwait, Qatar, United Arab Emirates, Oman, and some Polynesian islands, including Hawaii.">
+             
+            <img src="{% static 'images/red-vented_bulbul.jpg' %}" alt="Red-vented Bulbul">
+            <div>
+                <h3>Red-vented Bulbul</h3>
+                <p class="sci-name"><em>Pycnonotus cafer</em></p>
+                <p>A dark, medium-sized bird with a black crest and red vent. Very common in urban and rural areas across South Asia.</p>
+                <a href="{% url 'bird_detail' 'red-vented-bulbul' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 6. Jungle Babbler -->
+        <div class="bird-card"
+             data-iucn="Least Concern"
+             data-district="Sarpang,Zhemgang,Chhukha"
+             data-breeding="FALSE"
+             data-description="This familiar ash-brown colored babbler has a yellow bill and a dark brow in front of the eye that contrasts with its pale eye giving it a perpetual “angry” look. It has vague streaking on the upperparts, diffuse mottling on its throat, and barring on its tail. The multiple races vary slightly in color and strength of markings except the race somervillei of the NW peninsula which has dark brown outer wing feathers that contrast with the rest of the wing. They are often seen in noisy flocks hopping on the ground and flicking litter in search of food.">
+             
+            <img src="{% static 'images/jungle_babbler.jpg' %}" alt="Jungle Babbler">
+            <div>
+                <h3>Jungle Babbler</h3>
+                <p class="sci-name"><em>Turdoides striata</em></p>
+                <p>A noisy, social bird usually seen in flocks. Recognizable by its pale eye and constant chatter while foraging.</p>
+                <a href="{% url 'bird_detail' 'jungle-babbler' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 7. Common Myna -->
+        <div class="bird-card"
+             data-iucn="Least Concern"
+             data-district="Sarpang,Zhemgang,Punakha,Samdrup Jongkhar,Thimphu,Wangdue Phodrang"
+             data-breeding="FALSE"
+             data-description="A large, black-and-brown myna with white wing patches, yellow bill, and yellow legs. Gregarious and often found in noisy flocks. Aggressive, often driving away other birds. Can be found just about anywhere but the densest forests. Native to southern Asia, where it is among the most common species. Widely introduced elsewhere in the world, including Australia, New Zealand, and Hawaii.">
+             
+            <img src="{% static 'images/common_myna.jpg' %}" alt="Common Myna">
+            <div>
+                <h3>Common Myna</h3>
+                <p class="sci-name"><em>Acridotheres tristis</em></p>
+                <p>A bold and aggressive bird with a yellow bill and legs. Found in almost all habitats except dense forests.</p>
+                <a href="{% url 'bird_detail' 'common-myna' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 8. Ruddy Shelduck -->
+        <div class="bird-card"
+             data-iucn="Least Concern"
+             data-district="Punakha,Thimphu,Wangdue Phodrang,Bumthang,Paro"
+             data-breeding="FALSE"
+             data-description="Striking and distinctive gooselike duck. Plumage bright ruddy overall with contrasting pale creamy head and neck; male has narrow black neck ring. Big white forewing patches striking in flight. Breeds in southeastern Europe and Central Asia, winters in South Asia. Often found around saline lakes; also reservoirs and agricultural fields. Escapees from waterfowl collections occasionally seen free-flying outside of native range.">
+             
+            <img src="{% static 'images/ruddy_shelduck.jpg' %}" alt="Ruddy Shelduck">
+            <div>
+                <h3>Ruddy Shelduck</h3>
+                <p class="sci-name"><em>Tadorna ferruginea</em></p>
+                <p>A striking, goose-like duck with bright ruddy plumage. Often seen around lakes, reservoirs, and agricultural fields.</p>
+                <a href="{% url 'bird_detail' 'ruddy-shelduck' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 9. Mandarin Duck -->
+        <div class="bird-card"
+             data-iucn="Least Concern"
+             data-district="Punakha,Mongar,Wangdue Phodrang,Bumthang,Paro"
+             data-breeding="TRUE"
+             data-description="Small exotic-looking duck found at lakes and parks, usually with nearby trees. Male very ornate with big orangey sail fins on the back, streaked orangey cheeks, and a small red bill with a whitish tip. Female has narrow white spectacles on shaggy gray head, bold pale dappled spots along flanks, and pale bill tip. Mainly found in pairs or singly, but will gather in larger flocks over the winter; perches readily in trees over water. Native to East Asia, but has established feral populations throughout Western Europe.">
+            
+            <img src="{% static 'images/mandarin_duck.jpg' %}" alt="Mandarin Duck">
+            <div>
+                <h3>Mandarin Duck</h3>
+                <p class="sci-name"><em>Aix galericulata</em></p>
+                <p>A small, colorful duck with ornate plumage in males. Usually found at lakes and wooded ponds.</p>
+                <a href="{% url 'bird_detail' 'mandarin-duck' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 10. Common Merganser -->
+        <div class="bird-card"
+             data-iucn="Least Concern"
+             data-district="Zhemgang,Punakha,Thimphu,Wangdue Phodrang,Paro"
+             data-breeding="FALSE"
+             data-description="Large duck with a sleek body and thin red bill. Breeding males have a dark green head and mostly white body with peachy blush on underparts. Females and immature males have rusty brown head and gray bodies with a cleanly demarcated white throat. Feeds in rivers, lakes, and large ponds by diving to catch fish. Hardy in winter, often staying as far north as open water permits.">
+             
+            <img src="{% static 'images/common_merganser.jpg' %}" alt="Common Merganser">
+            <div>
+                <h3>Common Merganser</h3>
+                <p class="sci-name"><em>Mergus merganser</em></p>
+                <p>A large diving duck with a slender red bill. Feeds primarily on fish in rivers and lakes.</p>
+                <a href="{% url 'bird_detail' 'common-merganser' %}">
+                    <button>More Details</button>
+                </a>
+            </div>
+
+        </div>
+
+    <!-- DYNAMIC BIRDS (from database) -->
+        <!-- DYNAMIC BIRDS (from database) -->
+        {% for bird in birds %}
+            <div class="bird-card"
+                data-iucn="{{ bird.iucn_category }}"
+                data-district="{% for loc in bird.locations.all %}{{ loc.district }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                data-breeding="{{ bird.breeding }}"
+                data-description="{{ bird.description }}">
+         
+                <!-- First Image -->
+                {% if bird.images.first %}
+                    <img src="{{ bird.images.first.image.url }}" alt="{{ bird.species_name }}">
+                {% else %}
+                    <img src="{% static 'images/default_bird.jpg' %}" alt="{{ bird.species_name }}">
+                {% endif %}
+
+                <div>
+                    <h3>{{ bird.species_name }}</h3>
+                    <p class="sci-name"><em>{{ bird.scientific_name }}</em></p>
+                    <p>{{ bird.description|truncatechars:200 }}</p>
+
+                    <a href="{% url 'bird_detail_admin' bird.id %}">
+                        <button>More details</button>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+
+
+    </div>
+
+</div>
+<script>
+document.getElementById('applyFilter').addEventListener('click', function() {
+    const selectedIUCN = document.getElementById('iucnFilter').value.toLowerCase();
+    const selectedDistrict = document.getElementById('districtFilter').value.toLowerCase();
+    const selectedBreeding = document.getElementById('breedingFilter').value.toLowerCase();
+    const searchText = document.getElementById('textSearch').value.toLowerCase();
+
+    const birdCards = document.querySelectorAll('.bird-card');
+
+    birdCards.forEach(card => {
+        const cardIUCN = card.dataset.iucn.toLowerCase();
+        const cardDistricts = card.dataset.district.toLowerCase().split(","); // split into array
+        const cardBreeding = card.dataset.breeding.toLowerCase();
+        const cardText = (card.dataset.description + ' ' + card.querySelector('h3').innerText).toLowerCase();
+
+        const matchesIUCN = selectedIUCN === '' || cardIUCN === selectedIUCN;
+        const matchesDistrict = selectedDistrict === '' || cardDistricts.includes(selectedDistrict);
+        const matchesBreeding = selectedBreeding === '' || cardBreeding === selectedBreeding;
+        const matchesText = searchText === '' || cardText.includes(searchText);
+
+        if (matchesIUCN && matchesDistrict && matchesBreeding && matchesText) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+</script>
+
+<script>
+    // Initialize map
+    var map = L.map('map').setView([27.5, 89.5], 7); // Center on Bhutan
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add markers for dynamic birds from database
+    {% for bird in birds %}
+        {% for loc in bird.locations.all %}
+            {% if loc.latitude and loc.longitude %}
+                var marker = L.marker([{{ loc.latitude }}, {{ loc.longitude }}]).addTo(map);
+                marker.bindPopup("<b>{{ bird.species_name }}</b><br>{{ loc.location_name }}, {{ loc.district }}");
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</script>
+
+</body>
+</html>

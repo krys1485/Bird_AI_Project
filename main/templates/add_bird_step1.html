@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Bird - Step 1</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body { font-family: Arial, sans-serif; background-color:#f5eee6; padding-top:60px; }
+
+        /* Navbar */
+        nav.top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 30px; /* reduced vertical padding */
+            background-color: #f5eee6;
+            border-bottom: 1px solid #e1d7c7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            position: fixed; /* keep it at top */
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        /* Left icons */
+        nav .left-icons {
+            display:flex;
+            align-items:center;
+            gap:10px; /* smaller spacing between icons */
+        }
+        nav .left-icons a img {
+            width:32px;
+            cursor:pointer;
+            vertical-align: middle;
+        }
+
+        /* Logo right */
+        nav .right-logo {
+            display:flex;
+            align-items:center;
+            margin-left: auto; /* push logo to the right without huge gap */
+        }
+        nav .right-logo img.logo { width:45px; margin-right:8px; }
+        nav .right-logo span { font-size:22px; font-weight:bold; color:#2c3e50; }
+
+        /* Main Card */
+        .card {
+            max-width:600px;
+            margin:100px auto;
+            background:#fffdf7;
+            border-radius:18px;
+            padding:40px;
+            box-shadow:0 12px 30px rgba(0,0,0,0.08);
+            text-align:center;
+        }
+
+        h1 { color:#2c3e50; margin-bottom:10px; }
+        p { color:#7a7a7a; margin-bottom:20px; }
+        h3 { color:#2c3e50; margin-bottom:15px; }
+
+        input, select { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc; }
+
+        /* Buttons like Explore button */
+        .btn {
+            background-color:#9CAF88; 
+            color:#2c3e50;
+            padding:12px 28px;
+            border:none;
+            border-radius:6px;
+            font-size:16px;
+            cursor:pointer;
+            transition:0.3s;
+            text-decoration:none;
+            display:inline-block;
+            margin-right:10px;
+        }
+        .btn:hover { background-color:#879e73; color:white; }
+
+        /* Progress Meter */
+        .meter { width:100%; height:8px; background:#fff; border-radius:4px; margin:10px 0; overflow:hidden; }
+        .meter-fill { height:100%; width:33%; background:orange; }
+
+        .file-info { font-size:12px; color:#999; margin-bottom:15px; }
+
+        /* Button container */
+        .button-group { text-align:right; margin-top:20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="top-nav">
+        <div class="left-icons">
+            <a href="{% url 'home' %}"><img src="{% static 'icons/home.png' %}" alt="Home"></a>
+            <a href="{% url 'admin_login' %}"><img src="{% static 'icons/admin.png' %}" alt="Admin"></a>
+            <a href="{% url 'explore' %}"><img src="{% static 'icons/user.png' %}" alt="User"></a>
+        </div>
+        <div class="right-logo">
+            <img src="{% static 'images/logo.png' %}" class="logo">
+            <span>Druk Bird</span>
+        </div>
+    </nav>
+
+    <!-- Main Card -->
+    <div class="card">
+        <h1>Add New Bird Species</h1>
+        <p>Follow the steps to add a new bird to the database.</p>
+
+        <div class="meter"><div class="meter-fill"></div></div>
+        <h3>Step 1: Primary Data</h3>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label>Species Name</label>
+            <input type="text" name="species_name" placeholder="e.g., White-bellied Heron" required>
+
+            <label>Images</label>
+            <input type="file" name="images" multiple required>
+            <div class="file-info">Upload a minimum of 5 images. (0 selected)</div>
+
+            <label>Audio Recordings</label>
+            <input type="file" name="audios" multiple required>
+            <div class="file-info">Upload a minimum of 5 audios. (0 selected)</div>
+
+            <div class="button-group">
+                <a href="{% url 'admin_confirm' %}" class="btn">Back</a>
+                <button class="btn" type="submit">Next</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

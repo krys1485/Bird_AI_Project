@@ -1,0 +1,70 @@
+.btn {
+    background-color: beige;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background-color: green;
+    color: white;
+}
+
+/* =========================
+   TOP NAVBAR / HEADER BAR
+   ========================= */
+
+.navbar {
+    background-color: #F5F7FA;   /* soft light background */
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    /* OPTION 1: Subtle divider line (recommended) */
+    border-bottom: 1px solid #E1E5EA;
+
+    /* OPTION 2: Soft shadow for slight depth */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Left icons section */
+.navbar-left {
+    display: flex;
+    gap: 18px;
+}
+
+.navbar-left img {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+/* Right logo + text */
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-right img {
+    width: 36px;
+    height: auto;
+}
+
+.navbar-right h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1F2A44; /* navy */
+}
+
+video, canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.camera-section {
+    position: relative;
+}

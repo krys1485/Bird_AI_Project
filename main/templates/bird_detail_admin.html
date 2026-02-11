@@ -1,0 +1,124 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ bird.species_name }}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/bird_detail.css' %}">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        /* Optional: Adjust map styling if not in CSS */
+        #map {
+            width: 100%;
+            height: 350px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="bird-detail-container">
+
+    <!-- LEFT SIDE -->
+    <div class="bird-left">
+
+        {% if bird.images.first %}
+            <img src="{{ bird.images.first.image.url }}"
+                 alt="{{ bird.species_name }}"
+                 class="bird-image">
+        {% else %}
+            <img src="{% static 'images/placeholder_bird.jpg' %}" class="bird-image">
+        {% endif %}
+
+        {% if bird.audios.first %}
+            <audio controls style="width: 100%; margin-top: 15px;">
+                <source src="{{ bird.audios.first.audio.url }}" type="audio/mpeg">
+            </audio>
+        {% endif %}
+
+        <div class="pill-row">
+            <span class="pill">{{ bird.iucn_category }}</span>
+            {% if bird.is_manual == False %}
+                <span class="pill">Admin Added</span>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'explore' %}">
+            <button style="
+                background-color: #9CAF88;
+                color: white;
+                border: none;
+                padding: 10px 18px;
+                border-radius: 6px;
+                cursor: pointer;
+                margin-top: 15px;
+                width: 100%;
+                font-size: 16px;">
+                ← Back to Explore
+            </button>
+        </a>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="bird-right">
+
+        <h1 class="bird-title">{{ bird.species_name }}</h1>
+
+        <div class="pill-row">
+            <span class="pill italic">{{ bird.scientific_name }}</span>
+            <span class="pill italic">{{ bird.family_name }}</span>
+        </div>
+
+        <p class="bird-description">{{ bird.description }}</p>
+
+        {% if bird.locations.exists %}
+        <div class="map-section">
+            <h3>Distribution</h3>
+            <div id="map"></div>
+        </div>
+
+        <script>
+            var map = L.map('map').setView([27.5, 89.5], 7);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            var markers = [];
+
+            {% for loc in bird.locations.all %}
+                {% if loc.latitude and loc.longitude %}
+                    var marker = L.marker([{{ loc.latitude }}, {{ loc.longitude }}]).addTo(map);
+                    marker.bindPopup("<strong>{{ bird.species_name }}</strong><br>{{ loc.location_name }}, {{ loc.district }}");
+                    markers.push([{{ loc.latitude }}, {{ loc.longitude }}]);
+                {% endif %}
+            {% endfor %}
+
+            // Only fit bounds if there are markers
+            if (markers.length > 0) {
+                map.fitBounds(markers, { padding: [50, 50] });
+            } else {
+                map.setView([27.5, 89.5], 7); // fallback center
+            }
+        </script>
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

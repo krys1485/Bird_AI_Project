@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Bird Species – Step 2</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: Arial, sans-serif; background-color:#f5eee6; padding-top:60px; }
+
+        /* Navbar */
+        nav.top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 30px; /* reduced vertical padding */
+            background-color: #f5eee6;
+            border-bottom: 1px solid #e1d7c7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            position: fixed; /* keep it at top */
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        nav .left-icons {
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        nav .left-icons a img { width:32px; cursor:pointer; }
+
+        nav .right-logo {
+            display:flex;
+            align-items:center;
+            margin-left:auto; /* push logo right without huge gap */
+        }
+        nav .right-logo img.logo { width:45px; margin-right:8px; }
+        nav .right-logo span { font-size:22px; font-weight:bold; color:#2c3e50; }
+
+        /* Main Card */
+        .card {
+            max-width:600px;
+            margin:100px auto;
+            background:#fffdf7;
+            border-radius:18px;
+            padding:40px;
+            box-shadow:0 12px 30px rgba(0,0,0,0.08);
+            text-align:center;
+        }
+
+        h1 { color:#2c3e50; margin-bottom:10px; }
+        p.subtitle { color:#7a7a7a; margin-bottom:20px; }
+        h3.step-title { color:#2c3e50; margin-bottom:20px; text-align:left; }
+
+        input, select, textarea { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc; }
+        textarea { resize: vertical; min-height:80px; }
+
+        .flex-row { display:flex; gap:20px; }
+        .flex-row .half { flex:1; }
+
+        /* Buttons like Step 1 / Explore */
+        .btn {
+            background-color:#9CAF88; 
+            color:#2c3e50;
+            padding:12px 28px;
+            border:none;
+            border-radius:6px;
+            font-size:16px;
+            cursor:pointer;
+            transition:0.3s;
+            text-decoration:none;
+            display:inline-block;
+            margin-right:10px;
+        }
+        .btn:hover { background-color:#879e73; color:white; }
+
+        /* Progress Meter */
+        .meter { width:100%; height:8px; background:#fff; border-radius:4px; margin:10px 0 25px 0; overflow:hidden; }
+        .meter-fill { height:100%; width:66%; background:orange; }
+
+        /* Button container */
+        .button-group { text-align:right; margin-top:20px; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="top-nav">
+        <div class="left-icons">
+            <a href="{% url 'home' %}"><img src="{% static 'icons/home.png' %}" alt="Home"></a>
+            <a href="{% url 'admin_login' %}"><img src="{% static 'icons/admin.png' %}" alt="Admin"></a>
+            <a href="{% url 'explore' %}"><img src="{% static 'icons/user.png' %}" alt="User"></a>
+        </div>
+        <div class="right-logo">
+            <img src="{% static 'images/logo.png' %}" class="logo" alt="Logo">
+            <span>Druk Bird</span>
+        </div>
+    </nav>
+
+    <!-- Main Card -->
+    <div class="card">
+        <h1>Add New Bird Species</h1>
+        <p class="subtitle">Follow the steps to add a new bird to the database.</p>
+
+        <div class="meter"><div class="meter-fill"></div></div>
+        <h3 class="step-title">Step 2: Detailed Information</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="flex-row">
+                <div class="half">
+                    <label for="scientific_name">Scientific Name</label>
+                    <input type="text" id="scientific_name" name="scientific_name" placeholder="e.g., Ardea insignis">
+                </div>
+                <div class="half">
+                    <label for="family_name">Family Name</label>
+                    <input type="text" id="family_name" name="family_name" placeholder="e.g., Ardeidae">
+                </div>
+            </div>
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description" placeholder="Detailed description of the species..."></textarea>
+
+            <div class="flex-row">
+                <div class="half">
+                    <label for="iucn">IUCN Red List Category</label>
+                    <select id="iucn" name="iucn">
+                        <option>Least Concern</option>
+                        <option>Vulnerable</option>
+                        <option>Near Threatened</option>
+                        <option>Critically Endangered</option>
+                    </select>
+                </div>
+                <div class="half">
+                    <label for="district">District</label>
+                    <select id="district" name="district">
+                        <option>Bumthang</option>
+                        <option>Chhukha</option>
+                        <option>Dagana</option>
+                        <option>Gasa</option>
+                        <option>Haa</option>
+                        <option>Lhuentse</option>
+                        <option>Mongar</option>
+                        <option>Paro</option>
+                        <option>Pema Gatshel</option>
+                        <option>Punakha</option>
+                        <option>Samdrup Jongkhar</option>
+                        <option>Samtse</option>
+                        <option>Sarpang</option>
+                        <option>Thimphu</option>
+                        <option>Trashigang</option>
+                        <option>Trashiyangtse</option>
+                        <option>Trongsa</option>
+                        <option>Tsirang</option>
+                        <option>Wangdue Phodrang</option>
+                        <option>Zhemgang</option>
+                    </select>
+                </div>
+            </div>
+
+            <label for="location_name">Location Name</label>
+            <input type="text" id="location_name" name="location_name" placeholder="e.g., Phobjikha Valley">
+
+            <div class="flex-row">
+                <div class="half">
+                    <label for="latitude">Latitude</label>
+                    <input type="text" id="latitude" name="latitude" placeholder="e.g., 27.47">
+                </div>
+                <div class="half">
+                    <label for="longitude">Longitude</label>
+                    <input type="text" id="longitude" name="longitude" placeholder="e.g., 90.17">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <a href="{% url 'add_bird_step1' %}" class="btn">Back</a>
+                <button type="submit" class="btn">Next</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

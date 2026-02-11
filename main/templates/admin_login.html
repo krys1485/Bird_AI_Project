@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login - Druk Bird</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5eee6; /* light beige/tan */
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Top Navbar */
+        nav.top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 30px;
+            background-color: #f5eee6;
+            border-bottom: 1px solid #e1d7c7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+        nav .left-icons img {
+            width: 32px;
+            margin-right: 18px;
+            cursor: pointer;
+        }
+        nav .right-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        nav .right-logo img.logo {
+            width: 45px;
+            margin-right: 10px;
+        }
+
+        nav .right-logo span {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50; /* navy */
+        }
+
+        /* Centered popup card */
+        .login-card {
+            background: #fff;
+            padding: 40px 50px;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            width: 400px;
+            max-width: 90%;
+            margin: 80px auto;
+            text-align: center;
+        }
+
+        .login-card img {
+            width: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .login-card h1 {
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .login-card p {
+            font-size: 14px;
+            color: #7a7a7a;
+            margin-bottom: 25px;
+        }
+
+        .login-card input[type="email"],
+        .login-card input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .login-card button {
+            background-color: #9caf88; /* light green-grey */
+            color: #2c3e50;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .login-card button:hover {
+            background-color: #879e73;
+            color: white;
+        }
+
+        .alert {
+            color: red;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="top-nav">
+        <div class="left-icons">
+            <a href="{% url 'home' %}">
+                <img src="{% static 'icons/home.png' %}" alt="Home">
+            </a>
+            <img src="{% static 'icons/admin.png' %}" alt="Admin">
+            <a href="{% url 'explore' %}">
+                <img src="{% static 'icons/user.png' %}" alt="User">
+            </a>
+        </div>
+        <div class="right-logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
+            <span>Druk Bird</span>
+        </div>
+    </nav>
+
+    <!-- Login Card -->
+    <div class="login-card">
+        <h1>
+            <img src="{% static 'icons/admin.png' %}" alt="Admin Logo">
+            Admin Access
+        </h1>
+        <p>Enter the administrator credentials to proceed.</p>
+
+        {% if error %}
+            <div class="alert">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Bird Species – Review & Submit</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: Arial, sans-serif; background-color:#f5eee6; padding-top:60px; }
+
+        /* Navbar */
+        nav.top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 30px;
+            background-color: #f5eee6;
+            border-bottom: 1px solid #e1d7c7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+        }
+        nav .left-icons { display:flex; align-items:center; gap:10px; }
+        nav .left-icons a img { width:32px; cursor:pointer; }
+        nav .right-logo { display:flex; align-items:center; margin-left:auto; }
+        nav .right-logo img.logo { width:45px; margin-right:8px; }
+        nav .right-logo span { font-size:22px; font-weight:bold; color:#2c3e50; }
+
+        /* Card */
+        .card {
+            max-width:600px;
+            margin:100px auto;
+            background:#fffdf7;
+            border-radius:18px;
+            padding:40px;
+            box-shadow:0 12px 30px rgba(0,0,0,0.08);
+            text-align:center;
+        }
+
+        .circle-logo {
+            width:80px; height:80px;
+            background: rgba(156,175,136,0.2);
+            border-radius:50%;
+            display:flex; justify-content:center; align-items:center;
+            margin:0 auto 15px;
+        }
+        .circle-logo img { width:40px; }
+
+        h1 { color:#2c3e50; margin-bottom:10px; }
+        p.subtitle { color:#7a7a7a; margin-bottom:20px; }
+        h3.step-title { color:#2c3e50; margin-bottom:20px; text-align:center; }
+
+        .review-box { background-color:#f7f7f7; padding:20px; border-radius:8px; margin-bottom:20px; text-align:left; }
+        .review-item { margin-bottom:10px; }
+
+        /* Buttons */
+        .btn {
+            background-color:#9CAF88; color:#2c3e50;
+            padding:12px 28px; border:none; border-radius:6px;
+            font-size:16px; cursor:pointer; transition:0.3s;
+            margin-right:10px; text-decoration:none; display:inline-block;
+        }
+        .btn:hover { background-color:#879e73; color:white; }
+        .button-group { text-align:right; margin-top:20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="top-nav">
+        <div class="left-icons">
+            <a href="{% url 'home' %}"><img src="{% static 'icons/home.png' %}" alt="Home"></a>
+            <a href="{% url 'admin_login' %}"><img src="{% static 'icons/admin.png' %}" alt="Admin"></a>
+            <a href="{% url 'explore' %}"><img src="{% static 'icons/user.png' %}" alt="User"></a>
+        </div>
+        <div class="right-logo">
+            <img src="{% static 'images/logo.png' %}" class="logo" alt="Logo">
+            <span>Druk Bird</span>
+        </div>
+    </nav>
+
+    <!-- Main Card -->
+    <div class="card">
+        <div class="circle-logo">
+            <img src="{% static 'icons/submit.png' %}" alt="Submit">
+        </div>
+
+        <h1>Add New Bird Species</h1>
+        <p class="subtitle">Follow the steps to add a new bird to the database.</p>
+
+        <h3 class="step-title">Step 3: Review & Submit</h3>
+
+        <div class="review-box">
+            <div class="review-item"><strong>Species Name:</strong> {{ step1.species_name }}</div>
+            <div class="review-item"><strong>Images Uploaded:</strong> {{ images|length }}</div>
+            <div class="review-item"><strong>Audio Uploaded:</strong> {{ audios|length }}</div>
+            <div class="review-item"><strong>Scientific Name:</strong> {{ step2.scientific_name }}</div>
+            <div class="review-item"><strong>Family Name:</strong> {{ step2.family_name }}</div>
+            <div class="review-item"><strong>Description:</strong> {{ step2.description }}</div>
+            <div class="review-item"><strong>IUCN Category:</strong> {{ step2.iucn_category }}</div>
+            <div class="review-item"><strong>District:</strong> {{ step2.district }}</div>
+            <div class="review-item"><strong>Location Name:</strong> {{ step2.location_name }}</div>
+            <div class="review-item"><strong>Latitude:</strong> {{ step2.latitude }}</div>
+            <div class="review-item"><strong>Longitude:</strong> {{ step2.longitude }}</div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="button-group">
+                <a href="{% url 'add_bird_step2' %}" class="btn">Back</a>
+                {% if not submitted %}
+                    <button class="btn" type="submit" name="submit">Submit</button>
+                {% else %}
+                    <button class="btn" type="button" disabled>Submitted to Database ✅</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

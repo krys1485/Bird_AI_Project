@@ -1,0 +1,289 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Classification</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f3efe9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 20px;
+            padding: 14px 24px;
+            background: #e7dfd2;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .top-nav a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #3b3b3b;
+            font-weight: 600;
+        }
+
+        .top-nav img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            background: #f7f4ee;
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+            font-size: 32px;
+            color: #2f2f2f;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #6a6a6a;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            font-size: 15px;
+            color: #5c5c5c;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #dfe7d8;
+            padding: 18px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .option img {
+            width: 22px;
+        }
+
+        .option:hover {
+            background: #cddac3;
+        }
+
+        .classify-btn {
+            margin-top: 25px;
+            padding: 14px 34px;
+            font-size: 16px;
+            border: none;
+            border-radius: 30px;
+            background: #7c8f6a;
+            color: white;
+            cursor: pointer;
+        }
+
+        .classify-btn:hover {
+            background: #6a7e59;
+        }
+
+        .uploaded-img {
+            max-width: 100%;
+            margin-top: 25px;
+            border-radius: 14px;
+        }
+
+        .alert {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .success {
+            background: #d9ead3;
+            color: #274e13;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .details-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 26px;
+            background: #5f7c64;
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .details-btn:hover {
+            background: #4f6b55;
+        }
+
+        video, canvas {
+            max-width: 100%;
+            border-radius: 14px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div class="top-nav">
+    <a href="{% url 'home' %}">
+        <img src="{% static 'icons/home.png' %}"> Home
+    </a>
+    <a href="{% url 'classify_image' %}">
+        <img src="{% static 'icons/image.png' %}"> Image
+    </a>
+    <a href="{% url 'classify_audio' %}">
+        <img src="{% static 'icons/audio.png' %}"> Audio
+    </a>
+</div>
+
+<div class="container">
+
+    <h1>Image Classification</h1>
+    <div class="subtitle">
+        Upload a clear picture of a bird or use your camera to identify it.
+    </div>
+
+    <div class="description">
+        This tool uses a trained deep learning model to analyze bird images
+        and predict the species with high accuracy.
+    </div>
+
+    <div class="options">
+        <div class="option" onclick="openFilePicker()">
+            <img src="{% static 'icons/upload.png' %}"> Upload
+        </div>
+
+        <div class="option" onclick="startCamera()">
+            <img src="{% static 'icons/live_camera.png' %}"> Live Camera
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image" id="image-input" accept="image/*">
+        <button type="submit" class="classify-btn">Classify Bird</button>
+    </form>
+
+    {% if bbox_image_url %}
+        <img src="{{ bbox_image_url }}" class="uploaded-img">
+    {% endif %}
+
+    {% if prediction %}
+        <div class="alert success">
+            🐦 <strong>{{ prediction }}</strong><br>
+            Confidence: {{ confidence|floatformat:2 }}%
+
+            {% if detail_url %}
+                <br>
+                <a href="{{ detail_url }}" class="btn btn-primary">More details</a>
+            {% endif %}
+        </div>
+
+    {% elif message %}
+        <div class="alert warning">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <div class="camera-section">
+        <button id="capture-btn" class="classify-btn" style="display:none;">
+            Capture & Classify
+        </button>
+
+        <form method="POST" id="camera-form" hidden>
+            {% csrf_token %}
+            <input type="hidden" name="camera_image" id="camera-image">
+        </form>
+
+        <div class="video-wrapper">
+            <video id="camera" autoplay muted></video>
+            <canvas id="overlay"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const imageInput = document.getElementById("image-input");
+const video = document.getElementById("camera");
+const canvas = document.getElementById("overlay");
+const captureBtn = document.getElementById("capture-btn");
+const cameraImageInput = document.getElementById("camera-image");
+const cameraForm = document.getElementById("camera-form");
+
+function openFilePicker() {
+    imageInput.click();
+}
+
+async function startCamera() {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+
+    video.onloadedmetadata = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        captureBtn.style.display = "inline-block";
+    };
+}
+
+captureBtn.onclick = () => {
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+    tempCanvas.getContext("2d").drawImage(video, 0, 0);
+
+    cameraImageInput.value = tempCanvas.toDataURL("image/png");
+    cameraForm.submit();
+};
+</script>
+
+</body>
+</html>
